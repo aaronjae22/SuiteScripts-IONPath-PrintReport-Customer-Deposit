@@ -3,12 +3,7 @@
  * @NScriptType UserEventScript
  */
 define(['N/query', 'N/record', 'N/runtime', 'N/url'],
-    /**
- * @param{query} query
- * @param{record} record
- * @param{runtime} runtime
- * @param{url} url
- */
+
     (query, record, runtime, url) => {
         /**
          * Defines the function definition that is executed before record is loaded.
@@ -20,6 +15,10 @@ define(['N/query', 'N/record', 'N/runtime', 'N/url'],
          * @since 2015.2
          */
         const beforeLoad = (scriptContext) => {
+
+            const isEthos = runtime.getCurrentUser();
+
+            log.debug({title: 'Current User', details: isEthos});
 
         }
 
