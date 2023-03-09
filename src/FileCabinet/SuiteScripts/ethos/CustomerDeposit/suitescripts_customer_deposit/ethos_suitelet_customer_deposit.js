@@ -21,13 +21,42 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
          */
         const onRequest = (scriptContext) => {
 
-            let message = 'Suitelet';
-
+            /* let message = 'Suitelet';
             log.debug({title : 'onRequest', details : message});
+            scriptContext.response.write(message); */
 
-            scriptContext.response.write(message);
+            /* const customerDepositRequest = scriptContext.request;
+            const customerDepositResponse = scriptContext.response;
+            log.debug({title: 'Script Context Request', details: customerDepositRequest});
+            log.debug({title: 'Script Context Response', details: customerDepositResponse}); */
+
+            if (!scriptContext.request.method === https.Method.GET)
+                return ;
+
+            const depositData = getDepositInfo(scriptContext);
+
+            // log.debug({title: 'Deposit Data', depositData});
 
         }
+
+        const getDepositInfo = (scriptContext) => {
+
+            // log.debug({ title : 'Testing get deposit info function', details : 'getDepositInfo()'});
+
+           const params = scriptContext.request.parameters;
+           const recId = params.transactionId;
+           const rectType = params.recordType;
+
+           const scriptContextAttr = {
+               params,
+               recId,
+               rectType,
+           };
+
+           log.debug({ title : 'Script Context Attributes', details : scriptContextAttr});
+
+        }
+
 
         return {onRequest}
 
