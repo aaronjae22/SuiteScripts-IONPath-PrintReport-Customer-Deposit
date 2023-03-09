@@ -48,7 +48,7 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
                rectType,
            };
 
-           log.debug({ title : 'Script Context Attributes', details : scriptContextAttr});
+           // log.debug({ title : 'Script Context Attributes', details : scriptContextAttr});
 
            if (!rectType || !recId)
                return ;
@@ -57,7 +57,7 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
                return ;
 
            const customerDeposit = record.load({id: recId, type: rectType, isDynamic: true});
-           log.debug({title: 'Record', details: customerDeposit});
+           // log.debug({title: 'Record', details: customerDeposit});
 
             // Getting Payment Events List Info from Netsuite //
             const paymentEventsListName = 'paymentevent';
@@ -68,16 +68,34 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
             let customer = customerDeposit.getValue({fieldId : 'entityname'});
             let salesOrder = customerDeposit.getValue({fieldId : 'salesorder'});
             let currency = customerDeposit.getValue({fieldId : 'currencyname'});
-            let postingPeriod = customerDeposit.getValue({fieldId : 'postingperiod'});
-            let account = customerDeposit.getValue({fieldId : 'account'});
+            // let postingPeriod = customerDeposit.getValue({fieldId : 'postingperiod'});
+            let postingPeriod = customerDeposit.getText({fieldId : 'postingperiod'});
+
+            let tranDate = customerDeposit.getValue({fieldId : 'trandate'});
+            // Converting 2022-12-15T08:00:00.000Z to 12/15/2022 //
+            tranDate = format.format({type: format.Type.DATE, value: tranDate});
+
+            let printedDate = new Date();
+            printedDate = format.format({type: format.Type.DATE, value: printedDate});
+
+            let subsidiary = customerDeposit.getText({fieldId: 'subsidiary'});
+            let location = customerDeposit.getText({fieldId: 'location'});
+
+            // let account = customerDeposit.getValue({fieldId : 'account'});
+            let account = customerDeposit.getText({fieldId : 'account'});
             let deposit = customerDeposit.getValue({fieldId : 'tranid'});
             let paymentAmount = customerDeposit.getValue({fieldId : 'payment'});
+
 
             let depositData = {
                 customer,
                 salesOrder,
                 currency,
                 postingPeriod,
+                tranDate,
+                printedDate,
+                subsidiary,
+                location,
                 account,
                 deposit,
                 paymentAmount,
@@ -109,15 +127,20 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
                             sublistId : paymentEventsListName,
                             fieldId : 'amount',
                             line : i}),
-                        date : customerDeposit.getSublistValue({
+                        /* date : customerDeposit.getSublistValue({
                             sublistId : paymentEventsListName,
                             fieldId : 'eventdate',
-                            line : i}),
+                            line : i}),*/
+                        date : format.format({type: format.Type.DATE,
+                                                    value: customerDeposit.getSublistValue({
+                                                        sublistId : paymentEventsListName,
+                                                        fieldId : 'eventdate',
+                                                        line : i})})
                     };
 
                 depositData.paymentEvents.push(eventRecord);
 
-                log.debug({ title : 'EVENT RECORD', details : eventRecord});
+                // log.debug({ title : 'EVENT RECORD', details : eventRecord});
             }
 
             log.debug({ title : 'DEPOSIT DATA', details : depositData});
@@ -141,10 +164,10 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
             });
 
             renderer.templateContent = templateFile.getContents();
-            log.debug({title : 'RENDERER TEMPLATE CONTENT', details: renderer.templateContent});
+            // log.debug({title : 'RENDERER TEMPLATE CONTENT', details: renderer.templateContent});
 
             const pdfFile = renderer.renderAsPdf();
-            log.debug({title: 'PDF FILE', details: pdfFile});
+            // log.debug({title: 'PDF FILE', details: pdfFile});
 
             return scriptContext.response.writeFile(pdfFile, true);
 
