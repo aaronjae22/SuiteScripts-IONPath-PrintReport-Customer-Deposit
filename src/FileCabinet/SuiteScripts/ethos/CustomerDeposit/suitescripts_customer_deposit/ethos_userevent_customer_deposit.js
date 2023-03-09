@@ -16,9 +16,45 @@ define(['N/query', 'N/record', 'N/runtime', 'N/url'],
          */
         const beforeLoad = (scriptContext) => {
 
-            const isEthos = runtime.getCurrentUser();
+            const currentUser = runtime.getCurrentUser().email;
+            const isEthos = runtime.getCurrentUser().email === 'harryeden21@gmail.com';
 
-            log.debug({title: 'Current User', details: isEthos});
+            log.debug({title: 'Current User', details: [currentUser, isEthos] });
+
+            if (!isEthos)
+                return ;
+
+            const eventType = scriptContext.type;
+            const isView = eventType === scriptContext.UserEventType.VIEW;
+
+            if (!isView)
+                return ;
+
+            const thisRec = scriptContext.newRecord;
+            const recordType = thisRec.type;
+            const tranId = thisRec.id;
+
+            const thisObj = {
+                recordType: recordType,
+                transactionId: tranId};
+
+            const thisForm = scriptContext.form;
+
+            const contextAttributes = {
+                eventType,
+                isView,
+                // thisRec,
+                recordType,
+                tranId,
+            }
+
+            const contextObjects = {
+                thisObj,
+                thisForm,
+            }
+
+            log.debug({title: 'Context Attributes', details: contextAttributes});
+            log.debug({title: 'Object and Form', details: contextObjects});
 
         }
 
