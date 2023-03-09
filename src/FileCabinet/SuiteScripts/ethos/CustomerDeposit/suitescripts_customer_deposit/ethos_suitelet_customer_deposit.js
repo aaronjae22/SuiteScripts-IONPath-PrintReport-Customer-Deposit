@@ -3,14 +3,7 @@
  * @NScriptType Suitelet
  */
 define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
-    /**
- * @param{file} file
- * @param{format} format
- * @param{https} https
- * @param{record} record
- * @param{render} render
- * @param{runtime} runtime
- */
+
     (file, format, https, record, render, runtime) => {
         /**
          * Defines the Suitelet script trigger point.
@@ -36,6 +29,8 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
             const depositData = getDepositInfo(scriptContext);
 
             // log.debug({title: 'Deposit Data', depositData});
+
+            return generateReport(scriptContext, depositData);
 
         }
 
@@ -128,6 +123,30 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
             log.debug({ title : 'DEPOSIT DATA', details : depositData});
 
             return depositData;
+
+        }
+
+        const generateReport = (scriptContext, depositData) => {
+
+            const reportPDFTemplate = '/SuiteScripts/ethos/CustomerDeposit/html_templates/customer_deposit_report.html';
+
+            const renderer = render.create();
+
+            const templateFile = file.load({id : reportPDFTemplate});
+
+            renderer.addCustomDataSource({
+                alias: 'record',
+                format: render.DataSource.OBJECT,
+                data: depositData,
+            });
+
+            renderer.templateContent = templateFile.getContents();
+            log.debug({title : 'RENDERER TEMPLATE CONTENT', details: renderer.templateContent});
+
+            const pdfFile = renderer.renderAsPdf();
+            log.debug({title: 'PDF FILE', details: pdfFile});
+
+            return scriptContext.response.writeFile(pdfFile, true);
 
         }
 
