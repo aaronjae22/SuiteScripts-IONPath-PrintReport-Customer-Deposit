@@ -55,6 +55,17 @@ define(['N/file', 'N/format', 'N/https', 'N/record', 'N/render', 'N/runtime'],
 
            log.debug({ title : 'Script Context Attributes', details : scriptContextAttr});
 
+           if (!rectType || !recId)
+               return ;
+
+           if (!params.tpl)
+               return ;
+
+           const thisRec = record.load({id: recId, type: rectType, isDynamic: true});
+
+           log.debug({title: 'Record', details: thisRec});
+
+
         }
 
 
